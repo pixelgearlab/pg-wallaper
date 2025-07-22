@@ -53,9 +53,9 @@ const HeroSection = () => {
             className="w-full h-full"
             opts={{ loop: true }}
           >
-            <CarouselContent className="h-full">
+            <CarouselContent className="h-full ml-0">
               {topWallpapers.map((wallpaper) => (
-                <CarouselItem key={wallpaper.id} className="h-full">
+                <CarouselItem key={wallpaper.id} className="h-full pl-0">
                   <img
                     src={wallpaper.image_url}
                     alt="Top Wallpaper"
