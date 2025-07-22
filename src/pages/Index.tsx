@@ -1,10 +1,9 @@
 import { useState } from "react";
-import Header from "@/components/Header";
 import WallpaperGrid from "@/components/WallpaperGrid";
 import CategoryFilters from "@/components/CategoryFilters";
 import WallpaperPreviewDialog from "@/components/WallpaperPreviewDialog";
 import { type Wallpaper } from "@/components/WallpaperCard";
-import TopDownloadsSlider from "@/components/TopDownloadsSlider";
+import HeroSection from "@/components/HeroSection";
 
 const CATEGORIES = [
   "All",
@@ -27,8 +26,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-8">
-        <Header searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-        <TopDownloadsSlider />
+        <HeroSection searchTerm={searchTerm} onSearchChange={setSearchTerm} />
         <CategoryFilters
           categories={CATEGORIES}
           selectedCategory={selectedCategory}
