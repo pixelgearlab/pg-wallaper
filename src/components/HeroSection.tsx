@@ -4,12 +4,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { type Wallpaper } from "@/components/WallpaperCard";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -17,6 +11,7 @@ const HeroSection = () => {
   const [topWallpapers, setTopWallpapers] = useState<
     Pick<Wallpaper, "id" | "image_url">[]
   >([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchTopWallpapers = async () => {
@@ -36,6 +31,18 @@ const HeroSection = () => {
     fetchTopWallpapers();
   }, []);
 
+  useEffect(() => {
+    if (topWallpapers.length > 1) {
+      const timer = setTimeout(() => {
+        setCurrentImageIndex((prevIndex) =>
+          (prevIndex + 1) % topWallpapers.length
+        );
+      }, 3000); // Change image every 3 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [currentImageIndex, topWallpapers.length]);
+
   const handleJoinClick = () => {
     if (user) {
       navigate("/profile");
@@ -47,25 +54,17 @@ const HeroSection = () => {
   return (
     <div className="relative text-center py-16 md:py-24 rounded-lg overflow-hidden my-8">
       <div className="absolute inset-0 z-0">
-        {topWallpapers.length > 0 && (
-          <Carousel
-            plugins={[Autoplay({ delay: 3000, stopOnInteraction: false })]}
-            className="w-full h-full"
-            opts={{ loop: true }}
-          >
-            <CarouselContent className="h-full ml-0">
-              {topWallpapers.map((wallpaper) => (
-                <CarouselItem key={wallpaper.id} className="h-full pl-0">
-                  <img
-                    src={wallpaper.image_url}
-                    alt="Top Wallpaper"
-                    className="w-full h-full object-cover scale-110"
-                  />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
-        )}
+        {topWallpapers.length > 0 &&
+          topWallpapers.map((wallpaper, index) => (
+            <img
+              key={wallpaper.id}
+              src={wallpaper.image_url}
+              alt="Top Wallpaper"
+              className={`w-full h-full object-cover scale-110 absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                index === currentImageIndex ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          ))}
         <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" />
       </div>
       <div className="relative z-10">
