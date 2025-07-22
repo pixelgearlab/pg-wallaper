@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import WallpaperGrid from "@/components/WallpaperGrid";
-import { MadeWithDyad } from "@/components/made-with-dyad";
 import CategoryFilters from "@/components/CategoryFilters";
 import WallpaperPreviewDialog from "@/components/WallpaperPreviewDialog";
 import { type Wallpaper } from "@/components/WallpaperCard";
@@ -40,7 +39,6 @@ const Index = () => {
             onPreview={setPreviewWallpaper}
           />
         </main>
-        <MadeWithDyad />
       </div>
       <WallpaperPreviewDialog
         wallpaper={previewWallpaper}
