@@ -1,52 +1,86 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import WallpaperCard, { type Wallpaper } from "./WallpaperCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { showError } from "@/utils/toast";
+import { Button } from "./ui/button";
 
 interface WallpaperGridProps {
   searchTerm: string;
+  selectedCategory: string;
+  onPreview: (wallpaper: Wallpaper) => void;
 }
 
-const WallpaperGrid = ({ searchTerm }: WallpaperGridProps) => {
+const PAGE_SIZE = 20;
+
+const WallpaperGrid = ({
+  searchTerm,
+  selectedCategory,
+  onPreview,
+}: WallpaperGridProps) => {
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
-  useEffect(() => {
-    const fetchWallpapers = async () => {
-      setLoading(true);
+  const fetchWallpapers = useCallback(
+    async (currentPage: number, existingWallpapers: Wallpaper[] = []) => {
+      if (currentPage === 0) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
 
       let query = supabase
         .from("wallpapers")
         .select("*")
         .order("created_at", { ascending: false });
 
+      if (selectedCategory !== "All") {
+        query = query.filter("tags", "cs", `{${selectedCategory}}`);
+      }
+
       if (searchTerm) {
         const searchPattern = `%${searchTerm}%`;
-        // Search in name (case-insensitive) OR in tags array
         query = query.or(`name.ilike.${searchPattern},tags.cs.{${searchTerm}}`);
       }
+
+      const from = currentPage * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      query = query.range(from, to);
 
       const { data, error } = await query;
 
       if (error) {
         console.error("Error fetching wallpapers:", error);
         showError("Could not fetch wallpapers.");
+        setHasMore(false);
       } else {
-        setWallpapers(data as Wallpaper[]);
+        setWallpapers(
+          currentPage === 0 ? data : [...existingWallpapers, ...data]
+        );
+        setHasMore(data.length === PAGE_SIZE);
       }
+
       setLoading(false);
-    };
+      setLoadingMore(false);
+    },
+    [searchTerm, selectedCategory]
+  );
 
-    // Debounce search to avoid too many requests
-    const handler = setTimeout(() => {
-      fetchWallpapers();
-    }, 300);
+  useEffect(() => {
+    setPage(0);
+    setWallpapers([]);
+    setHasMore(true);
+    fetchWallpapers(0);
+  }, [searchTerm, selectedCategory, fetchWallpapers]);
 
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [searchTerm]);
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchWallpapers(nextPage, wallpapers);
+  };
 
   if (loading) {
     return (
@@ -60,18 +94,31 @@ const WallpaperGrid = ({ searchTerm }: WallpaperGridProps) => {
 
   if (wallpapers.length === 0) {
     return (
-      <p className="text-center text-muted-foreground">
-        No wallpapers found for "{searchTerm}". Try another search.
+      <p className="text-center text-muted-foreground mt-10">
+        No wallpapers found. Try a different search or category.
       </p>
     );
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-      {wallpapers.map((wallpaper) => (
-        <WallpaperCard key={wallpaper.id} wallpaper={wallpaper} />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+        {wallpapers.map((wallpaper) => (
+          <WallpaperCard
+            key={wallpaper.id}
+            wallpaper={wallpaper}
+            onPreview={onPreview}
+          />
+        ))}
+      </div>
+      {hasMore && (
+        <div className="text-center mt-8">
+          <Button onClick={loadMore} disabled={loadingMore}>
+            {loadingMore ? "Loading..." : "Load More"}
+          </Button>
+        </div>
+      )}
+    </>
   );
 };
 
