@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Eye } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type Wallpaper = {
   id: number;
@@ -8,6 +9,7 @@ export type Wallpaper = {
   image_url: string;
   thumb_url: string;
   tags: string[] | null;
+  download_count?: number;
 };
 
 interface WallpaperCardProps {
@@ -16,8 +18,17 @@ interface WallpaperCardProps {
 }
 
 const WallpaperCard = ({ wallpaper, onPreview }: WallpaperCardProps) => {
-  const handleDownload = (e: React.MouseEvent) => {
+  const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
+
+    try {
+      await supabase.functions.invoke('increment-download', {
+        body: { wallpaperId: wallpaper.id },
+      });
+    } catch (error) {
+      console.error('Failed to update download count:', error);
+    }
+
     const link = document.createElement("a");
     link.href = wallpaper.image_url;
     link.download = wallpaper.name ? `${wallpaper.name}.jpg` : "wallpaper.jpg";

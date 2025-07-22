@@ -4,6 +4,7 @@ import WallpaperGrid from "@/components/WallpaperGrid";
 import CategoryFilters from "@/components/CategoryFilters";
 import WallpaperPreviewDialog from "@/components/WallpaperPreviewDialog";
 import { type Wallpaper } from "@/components/WallpaperCard";
+import TopDownloadsSlider from "@/components/TopDownloadsSlider";
 
 const CATEGORIES = [
   "All",
@@ -27,6 +28,7 @@ const Index = () => {
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-8">
         <Header searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        <TopDownloadsSlider />
         <CategoryFilters
           categories={CATEGORIES}
           selectedCategory={selectedCategory}
