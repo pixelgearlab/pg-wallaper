@@ -2,8 +2,10 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import WallpaperCard, { type Wallpaper } from "./WallpaperCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { showError } from "@/utils/toast";
+import { showError, showSuccess } from "@/utils/toast";
 import { Button } from "./ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface WallpaperGridProps {
   searchTerm: string;
@@ -18,11 +20,32 @@ const WallpaperGrid = ({
   selectedCategory,
   onPreview,
 }: WallpaperGridProps) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (user) {
+      const fetchFavorites = async () => {
+        const { data, error } = await supabase
+          .from('favorites')
+          .select('wallpaper_id')
+          .eq('user_id', user.id);
+        
+        if (data) {
+          setFavoriteIds(new Set(data.map(fav => fav.wallpaper_id)));
+        }
+      };
+      fetchFavorites();
+    } else {
+      setFavoriteIds(new Set());
+    }
+  }, [user]);
 
   const fetchWallpapers = useCallback(
     async (currentPage: number, existingWallpapers: Wallpaper[] = []) => {
@@ -82,6 +105,41 @@ const WallpaperGrid = ({
     fetchWallpapers(nextPage, wallpapers);
   };
 
+  const handleToggleFavorite = async (wallpaperId: number) => {
+    if (!user) {
+      showError("Please log in to favorite wallpapers.");
+      navigate('/login');
+      return;
+    }
+
+    const isFavorite = favoriteIds.has(wallpaperId);
+    const newFavoriteIds = new Set(favoriteIds);
+
+    if (isFavorite) {
+      newFavoriteIds.delete(wallpaperId);
+      setFavoriteIds(newFavoriteIds);
+      const { error } = await supabase.from('favorites').delete().match({ user_id: user.id, wallpaper_id: wallpaperId });
+      if (error) {
+        showError("Failed to remove from favorites.");
+        newFavoriteIds.add(wallpaperId);
+        setFavoriteIds(newFavoriteIds);
+      } else {
+        showSuccess("Removed from favorites.");
+      }
+    } else {
+      newFavoriteIds.add(wallpaperId);
+      setFavoriteIds(newFavoriteIds);
+      const { error } = await supabase.from('favorites').insert({ user_id: user.id, wallpaper_id: wallpaperId });
+      if (error) {
+        showError("Failed to add to favorites.");
+        newFavoriteIds.delete(wallpaperId);
+        setFavoriteIds(newFavoriteIds);
+      } else {
+        showSuccess("Added to favorites!");
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
@@ -108,6 +166,8 @@ const WallpaperGrid = ({
             key={wallpaper.id}
             wallpaper={wallpaper}
             onPreview={onPreview}
+            isFavorite={favoriteIds.has(wallpaper.id)}
+            onToggleFavorite={handleToggleFavorite}
           />
         ))}
       </div>
