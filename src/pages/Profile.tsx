@@ -12,6 +12,7 @@ import Header from '@/components/Header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Camera } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Profile = () => {
   const { user, profile, loading: authLoading } = useAuth();
@@ -164,74 +165,79 @@ const Profile = () => {
 
   return (
     <>
-      <Header />
+      <Header searchTerm="" onSearchChange={() => {}} />
       <div className="container mx-auto py-8">
         <div className="max-w-6xl mx-auto bg-card p-6 sm:p-8 rounded-lg shadow-lg">
-          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-8">
+          <div className="relative h-48 bg-gradient-to-r from-primary to-purple-600 rounded-t-lg -mx-6 -mt-6 sm:-mx-8 sm:-mt-8" />
+          <div className="flex flex-col items-center -mt-20">
             <div className="relative">
-              <Avatar className="h-24 w-24">
+              <Avatar className="h-32 w-32 border-4 border-card">
                 <AvatarImage src={avatarUrl ?? ''} alt={profile?.full_name ?? 'User'} />
-                <AvatarFallback className="text-3xl">{fullName?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
+                <AvatarFallback className="text-5xl">{fullName?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
               </Avatar>
-              <label htmlFor="avatar-upload" className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full p-2 cursor-pointer hover:bg-primary/90 transition-colors">
-                <Camera className="h-4 w-4" />
+              <label htmlFor="avatar-upload" className="absolute bottom-1 right-1 bg-primary text-primary-foreground rounded-full p-2 cursor-pointer hover:bg-primary/90 transition-colors">
+                <Camera className="h-5 w-5" />
                 <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={uploading} />
               </label>
-              {uploading && <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center"><div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div></div>}
+              {uploading && <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center"><div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div></div>}
             </div>
-            <div className="text-center sm:text-left flex-grow">
-              <h1 className="text-3xl font-bold">{fullName || 'Set Your Name'}</h1>
-              <p className="text-muted-foreground">{user.email}</p>
-            </div>
+            <h1 className="text-3xl font-bold mt-4">{fullName || 'Set Your Name'}</h1>
+            <p className="text-muted-foreground">{user.email}</p>
           </div>
 
-          <form onSubmit={handleUpdateProfile} className="border-t border-border pt-6 mb-8">
-            <h2 className="text-2xl font-semibold mb-6">Edit Profile</h2>
-            <div className="space-y-4 max-w-md">
-              <div>
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-              </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={user.email ?? ''} disabled />
-              </div>
-              <Button type="submit" disabled={updating || uploading}>
-                {updating ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </form>
-
-          <div className="border-t border-border pt-6">
-            <h2 className="text-2xl font-semibold mb-6">My Favorite Wallpapers</h2>
-            {loadingFavorites ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <Skeleton key={index} className="w-full aspect-[16/9] rounded-lg" />
-                ))}
-              </div>
-            ) : favorites.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                {favorites.map(wallpaper => (
-                  <WallpaperCard
-                    key={wallpaper.id}
-                    wallpaper={wallpaper}
-                    onPreview={setPreviewWallpaper}
-                    isFavorite={true}
-                    onToggleFavorite={handleToggleFavorite}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 bg-muted rounded-lg">
-                <p className="text-muted-foreground">You haven't favorited any wallpapers yet.</p>
-                <Button onClick={() => navigate('/')} className="mt-4">Explore Wallpapers</Button>
-              </div>
-            )}
+          <Tabs defaultValue="favorites" className="mt-8">
+            <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+              <TabsTrigger value="favorites">My Favorites</TabsTrigger>
+              <TabsTrigger value="edit">Edit Profile</TabsTrigger>
+            </TabsList>
+            <TabsContent value="favorites" className="mt-6">
+              {loadingFavorites ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <Skeleton key={index} className="w-full aspect-[16/9] rounded-lg" />
+                  ))}
+                </div>
+              ) : favorites.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                  {favorites.map(wallpaper => (
+                    <WallpaperCard
+                      key={wallpaper.id}
+                      wallpaper={wallpaper}
+                      onPreview={setPreviewWallpaper}
+                      isFavorite={true}
+                      onToggleFavorite={handleToggleFavorite}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-muted rounded-lg">
+                  <p className="text-muted-foreground">You haven't favorited any wallpapers yet.</p>
+                  <Button onClick={() => navigate('/')} className="mt-4">Explore Wallpapers</Button>
+                </div>
+              )}
+            </TabsContent>
+            <TabsContent value="edit" className="mt-6 max-w-md mx-auto">
+              <form onSubmit={handleUpdateProfile} className="space-y-4">
+                <div>
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" value={user.email ?? ''} disabled />
+                </div>
+                <Button type="submit" disabled={updating || uploading} className="w-full">
+                  {updating ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+          
+          <div className="mt-8 flex justify-center">
+            <Button onClick={handleLogout} variant="destructive">
+              Log Out
+            </Button>
           </div>
-          <Button onClick={handleLogout} variant="destructive" className="w-full sm:w-auto sm:ml-auto mt-8 flex">
-            Log Out
-          </Button>
         </div>
       </div>
       <WallpaperPreviewDialog
