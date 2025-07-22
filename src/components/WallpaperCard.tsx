@@ -39,7 +39,7 @@ const WallpaperCard = ({ wallpaper, onPreview }: WallpaperCardProps) => {
         <img
           src={wallpaper.thumb_url}
           alt={wallpaper.name || "Wallpaper"}
-          className="aspect-[9/16] w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="aspect-[16/9] w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end items-center p-4">
           {wallpaper.name && (
