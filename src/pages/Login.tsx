@@ -1,4 +1,4 @@
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,6 +12,7 @@ const Login = () => {
   const { session, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const emailInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     document.title = "Login - PG WALLPAPER";
@@ -44,6 +45,10 @@ const Login = () => {
     setLoading(false);
   };
 
+  const handleCreateAccountClick = () => {
+    emailInputRef.current?.focus();
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -73,6 +78,7 @@ const Login = () => {
             <div className="relative mt-2">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
+                ref={emailInputRef}
                 id="email"
                 type="email"
                 placeholder="Enter your email"
@@ -97,7 +103,10 @@ const Login = () => {
         </form>
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Don't have an account?{' '}
-          <span className="font-medium text-primary cursor-pointer hover:underline">
+          <span 
+            className="font-medium text-primary cursor-pointer hover:underline"
+            onClick={handleCreateAccountClick}
+          >
             Create one here
           </span>
         </p>
