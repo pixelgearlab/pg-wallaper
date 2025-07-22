@@ -9,7 +9,7 @@ interface SidebarProps {
 
 const Sidebar = ({ categories, selectedCategory, onSelectCategory }: SidebarProps) => {
   return (
-    <div className="bg-card p-4 rounded-lg shadow-sm sticky top-24">
+    <div className="bg-card p-4 rounded-lg shadow-sm sticky top-24 animate-fade-in">
       <h3 className="font-semibold text-lg mb-4 px-2">Categories</h3>
       <ul className="space-y-1">
         {categories.map((category) => (

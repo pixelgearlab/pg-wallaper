@@ -19,9 +19,10 @@ interface WallpaperCardProps {
   onPreview: (wallpaper: Wallpaper) => void;
   isFavorite: boolean;
   onToggleFavorite: (wallpaperId: number) => void;
+  index: number;
 }
 
-const WallpaperCard = ({ wallpaper, onPreview, isFavorite, onToggleFavorite }: WallpaperCardProps) => {
+const WallpaperCard = ({ wallpaper, onPreview, isFavorite, onToggleFavorite, index }: WallpaperCardProps) => {
   
   const handlePreview = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -35,7 +36,8 @@ const WallpaperCard = ({ wallpaper, onPreview, isFavorite, onToggleFavorite }: W
 
   return (
     <Card 
-      className="overflow-hidden group relative border-none shadow-lg rounded-lg bg-muted cursor-pointer" 
+      className="overflow-hidden group relative border-none shadow-lg rounded-lg bg-muted cursor-pointer animate-scale-in" 
+      style={{ animationDelay: `${(index % 20) * 50}ms` }}
       onClick={handlePreview}
     >
       <CardContent className="p-0">

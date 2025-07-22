@@ -199,13 +199,14 @@ const Profile = () => {
                 </div>
               ) : favorites.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                  {favorites.map(wallpaper => (
+                  {favorites.map((wallpaper, index) => (
                     <WallpaperCard
                       key={wallpaper.id}
                       wallpaper={wallpaper}
                       onPreview={setPreviewWallpaper}
                       isFavorite={true}
                       onToggleFavorite={handleToggleFavorite}
+                      index={index}
                     />
                   ))}
                 </div>
