@@ -40,7 +40,7 @@ const Header = ({ searchTerm, onSearchChange }: HeaderProps) => {
       <div className="container mx-auto flex justify-between items-center gap-4">
         <Link to="/" className="flex items-center gap-2 flex-shrink-0">
           <img src="https://i.ibb.co/23fx2fQg/20250722-063513.png" alt="Logo" className="h-8 w-8" />
-          <h1 className="text-xl font-bold hidden sm:block">WallpaperVault</h1>
+          <h1 className="text-xl font-bold hidden sm:block">PG Wallpaper</h1>
         </Link>
         
         <div className="flex-1 px-4 sm:px-8 lg:px-16 hidden md:block">

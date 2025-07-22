@@ -7,12 +7,14 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import CursorFollower from "./components/CursorFollower";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <CursorFollower />
       <Toaster />
       <Sonner />
       <BrowserRouter>
