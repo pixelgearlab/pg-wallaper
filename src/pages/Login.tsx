@@ -30,7 +30,6 @@ const Login = () => {
     const { error } = await supabase.auth.signInWithOtp({
       email: email,
       options: {
-        // This is where the user will be redirected after clicking the magic link.
         emailRedirectTo: window.location.origin,
       },
     });
