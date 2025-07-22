@@ -1,18 +1,19 @@
 import { useState } from "react";
 import WallpaperGrid from "@/components/WallpaperGrid";
-import CategoryFilters from "@/components/CategoryFilters";
 import WallpaperPreviewDialog from "@/components/WallpaperPreviewDialog";
 import { type Wallpaper } from "@/components/WallpaperCard";
 import HeroSection from "@/components/HeroSection";
 import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
 
 const CATEGORIES = [
   "All",
+  "Abstract",
   "AMOLED",
-  "Minimal",
   "Anime",
   "Cinematic",
-  "Abstract",
+  "Cyberpunk",
+  "Minimal",
   "Nature",
   "AI Generated",
 ];
@@ -26,21 +27,25 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
-      <div className="container mx-auto px-4 pb-8">
-        <HeroSection searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-        <CategoryFilters
-          categories={CATEGORIES}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-        />
-        <main>
-          <WallpaperGrid
-            searchTerm={searchTerm}
-            selectedCategory={selectedCategory}
-            onPreview={setPreviewWallpaper}
-          />
-        </main>
+      <Header searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+      <div className="container mx-auto px-4">
+        <HeroSection />
+        <div className="flex flex-col lg:flex-row gap-8">
+          <aside className="w-full lg:w-64 lg:flex-shrink-0">
+            <Sidebar
+              categories={CATEGORIES}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
+          </aside>
+          <main className="flex-1">
+            <WallpaperGrid
+              searchTerm={searchTerm}
+              selectedCategory={selectedCategory}
+              onPreview={setPreviewWallpaper}
+            />
+          </main>
+        </div>
       </div>
       <WallpaperPreviewDialog
         wallpaper={previewWallpaper}

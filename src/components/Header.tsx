@@ -13,8 +13,14 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { LogOut, User as UserIcon } from 'lucide-react';
+import Search from './Search';
 
-const Header = () => {
+interface HeaderProps {
+  searchTerm: string;
+  onSearchChange: (term: string) => void;
+}
+
+const Header = ({ searchTerm, onSearchChange }: HeaderProps) => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -29,12 +35,17 @@ const Header = () => {
   };
 
   return (
-    <header className="py-4">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="flex items-center gap-2">
-          <img src="https://i.ibb.co/23fx2fQg/20250722-063513.png" alt="Logo" className="h-10 w-10" />
-          <h1 className="text-2xl font-bold hidden sm:block">PG WALLPAPER</h1>
+    <header className="py-3 border-b border-border/40 sticky top-0 bg-background/95 backdrop-blur-sm z-50">
+      <div className="container mx-auto flex justify-between items-center gap-4">
+        <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+          <img src="https://i.ibb.co/23fx2fQg/20250722-063513.png" alt="Logo" className="h-8 w-8" />
+          <h1 className="text-xl font-bold hidden sm:block">WallpaperVault</h1>
         </Link>
+        
+        <div className="flex-1 px-4 sm:px-8 lg:px-16 hidden md:block">
+          <Search searchTerm={searchTerm} onSearchChange={onSearchChange} />
+        </div>
+
         <div>
           {loading ? (
             <div className="h-10 w-20 bg-muted rounded-md animate-pulse" />
