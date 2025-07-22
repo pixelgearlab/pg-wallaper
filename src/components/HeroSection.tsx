@@ -18,7 +18,7 @@ interface HeroSectionProps {
 const HeroSection = ({ searchTerm, onSearchChange }: HeroSectionProps) => {
   const [topWallpapers, setTopWallpapers] = useState<Wallpaper[]>([]);
   const [loading, setLoading] = useState(true);
-  const plugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: true }));
+  const plugin = useRef(Autoplay({ delay: 3000, stopOnInteraction: true }));
 
   useEffect(() => {
     const fetchTopWallpapers = async () => {
