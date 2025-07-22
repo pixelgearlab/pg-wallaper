@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import supabase from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import WallpaperCard, { type Wallpaper } from "./WallpaperCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { showError } from "@/utils/toast";
