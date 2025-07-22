@@ -66,7 +66,7 @@ const HeroSection = () => {
             </CarouselContent>
           </Carousel>
         )}
-        <div className="absolute inset-0 bg-background/70 backdrop-blur-md" />
+        <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" />
       </div>
       <div className="relative z-10">
         <h1
