@@ -4,7 +4,11 @@ import WallpaperCard, { type Wallpaper } from "./WallpaperCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { showError } from "@/utils/toast";
 
-const WallpaperGrid = () => {
+interface WallpaperGridProps {
+  searchTerm: string;
+}
+
+const WallpaperGrid = ({ searchTerm }: WallpaperGridProps) => {
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -12,10 +16,18 @@ const WallpaperGrid = () => {
     const fetchWallpapers = async () => {
       setLoading(true);
 
-      const { data, error } = await supabase
+      let query = supabase
         .from("wallpapers")
         .select("*")
         .order("created_at", { ascending: false });
+
+      if (searchTerm) {
+        const searchPattern = `%${searchTerm}%`;
+        // Search in name (case-insensitive) OR in tags array
+        query = query.or(`name.ilike.${searchPattern},tags.cs.{${searchTerm}}`);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error("Error fetching wallpapers:", error);
@@ -26,8 +38,15 @@ const WallpaperGrid = () => {
       setLoading(false);
     };
 
-    fetchWallpapers();
-  }, []);
+    // Debounce search to avoid too many requests
+    const handler = setTimeout(() => {
+      fetchWallpapers();
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
 
   if (loading) {
     return (
@@ -40,7 +59,11 @@ const WallpaperGrid = () => {
   }
 
   if (wallpapers.length === 0) {
-    return <p className="text-center text-muted-foreground">No wallpapers found.</p>;
+    return (
+      <p className="text-center text-muted-foreground">
+        No wallpapers found for "{searchTerm}". Try another search.
+      </p>
+    );
   }
 
   return (
