@@ -1,11 +1,14 @@
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
+  DialogHeader,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { type Wallpaper } from "./WallpaperCard";
 import { Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 
 interface WallpaperPreviewDialogProps {
   wallpaper: Wallpaper | null;
@@ -21,39 +24,58 @@ const WallpaperPreviewDialog = ({
   if (!wallpaper) return null;
 
   const handleDownload = async () => {
+    const toastId = showLoading("Preparing download...");
     try {
-      await supabase.functions.invoke('increment-download', {
+      // Increment download count in parallel
+      supabase.functions.invoke('increment-download', {
         body: { wallpaperId: wallpaper.id },
-      });
-    } catch (error) {
-      console.error('Failed to update download count:', error);
-    }
+      }).catch(console.error);
 
-    const link = document.createElement("a");
-    link.href = wallpaper.image_url;
-    link.download = wallpaper.name ? `${wallpaper.name}.jpg` : "wallpaper.jpg";
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const response = await fetch(wallpaper.image_url);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = wallpaper.name ? `${wallpaper.name}.jpg` : "wallpaper.jpg";
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      dismissToast(toastId);
+      showSuccess("Download started!");
+
+    } catch (error) {
+      console.error("Download failed:", error);
+      dismissToast(toastId);
+      showError("Download failed. Please try again.");
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl w-full p-0 bg-transparent border-0 shadow-none">
-        <div className="relative">
+      <DialogContent className="max-w-[90vw] max-h-[95vh] w-auto h-auto p-4 bg-card flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="truncate">{wallpaper.name || "Wallpaper Preview"}</DialogTitle>
+        </DialogHeader>
+        <div className="flex-grow flex items-center justify-center overflow-hidden">
           <img
             src={wallpaper.image_url}
             alt={wallpaper.name || "Wallpaper"}
-            className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
+            className="max-w-full max-h-full object-contain rounded-md"
           />
-          <div className="absolute bottom-4 right-4">
-            <Button onClick={handleDownload} size="lg">
-              <Download className="h-5 w-5 mr-2" />
-              Download
-            </Button>
-          </div>
+        </div>
+        <div className="flex justify-end pt-4">
+          <Button onClick={handleDownload} size="lg">
+            <Download className="h-5 w-5 mr-2" />
+            Download
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

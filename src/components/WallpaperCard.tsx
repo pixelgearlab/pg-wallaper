@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Eye, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 
 export type Wallpaper = {
   id: number;
@@ -23,23 +24,38 @@ interface WallpaperCardProps {
 const WallpaperCard = ({ wallpaper, onPreview, isFavorite, onToggleFavorite }: WallpaperCardProps) => {
   const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
-
+    const toastId = showLoading("Preparing download...");
     try {
-      await supabase.functions.invoke('increment-download', {
+      // Increment download count in parallel
+      supabase.functions.invoke('increment-download', {
         body: { wallpaperId: wallpaper.id },
-      });
-    } catch (error) {
-      console.error('Failed to update download count:', error);
-    }
+      }).catch(console.error);
 
-    const link = document.createElement("a");
-    link.href = wallpaper.image_url;
-    link.download = wallpaper.name ? `${wallpaper.name}.jpg` : "wallpaper.jpg";
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const response = await fetch(wallpaper.image_url);
+       if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = wallpaper.name ? `${wallpaper.name}.jpg` : "wallpaper.jpg";
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      dismissToast(toastId);
+      showSuccess("Download started!");
+
+    } catch (error) {
+      console.error("Download failed:", error);
+      dismissToast(toastId);
+      showError("Download failed. Please try again.");
+    }
   };
 
   const handlePreview = (e: React.MouseEvent) => {
