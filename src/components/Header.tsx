@@ -14,6 +14,7 @@ import {
 } from './ui/dropdown-menu';
 import { LogOut, User as UserIcon } from 'lucide-react';
 import Search from './Search';
+import { ThemeToggle } from './ThemeToggle';
 
 interface HeaderProps {
   searchTerm: string;
@@ -46,7 +47,8 @@ const Header = ({ searchTerm, onSearchChange }: HeaderProps) => {
           <Search searchTerm={searchTerm} onSearchChange={onSearchChange} />
         </div>
 
-        <div>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
           {loading ? (
             <div className="h-10 w-20 bg-muted rounded-md animate-pulse" />
           ) : user ? (

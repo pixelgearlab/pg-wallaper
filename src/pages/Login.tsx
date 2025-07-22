@@ -1,12 +1,13 @@
 import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
+import { useTheme } from '@/components/ThemeProvider';
 
 const Login = () => {
   const { session, loading } = useAuth();
+  const { theme } = useTheme();
 
   useEffect(() => {
     document.title = "Login - PG WALLPAPER";
@@ -30,9 +31,36 @@ const Login = () => {
         </div>
         <Auth
           supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
+          appearance={{ 
+            theme: 'default',
+            variables: {
+              default: {
+                colors: {
+                  brand: 'hsl(var(--primary))',
+                  brandAccent: 'hsl(var(--primary-foreground))',
+                  brandButtonText: 'hsl(var(--primary-foreground))',
+                  defaultButtonBackground: 'hsl(var(--secondary))',
+                  defaultButtonBackgroundHover: 'hsl(var(--secondary-foreground))',
+                  defaultButtonBorder: 'hsl(var(--border))',
+                  defaultButtonText: 'hsl(var(--secondary-foreground))',
+                  dividerBackground: 'hsl(var(--border))',
+                  inputBackground: 'hsl(var(--input))',
+                  inputBorder: 'hsl(var(--border))',
+                  inputBorderHover: 'hsl(var(--ring))',
+                  inputBorderFocus: 'hsl(var(--ring))',
+                  inputText: 'hsl(var(--foreground))',
+                  inputLabelText: 'hsl(var(--muted-foreground))',
+                  inputPlaceholder: 'hsl(var(--muted-foreground))',
+                  messageText: 'hsl(var(--foreground))',
+                  messageTextDanger: 'hsl(var(--destructive-foreground))',
+                  anchorTextColor: 'hsl(var(--primary))',
+                  anchorTextHoverColor: 'hsl(var(--primary-foreground))',
+                },
+              },
+            },
+          }}
           providers={['google', 'github']}
-          theme="dark"
+          theme={theme === 'dark' ? 'dark' : 'light'}
           socialLayout="horizontal"
         />
       </div>
